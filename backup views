@@ -1,0 +1,30 @@
+class IndexView(TemplateView):
+    model = Curso
+    template_name = 'app/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cursos'] = Curso.objects.all()
+
+        return context
+    
+    
+
+
+
+class CursoView(DetailView):
+    model = Curso
+    context_object_name = 'curso'
+    template_name = 'app/curso.html'
+
+    def get_queryset(self):
+        self.nome = get_object_or_404(Curso, pk=self.kwargs['pk'])
+        return Curso.objects.filter(nome=self.nome)
+
+    def get_context_data(self, **kwargs):
+        context = super(CursoView, self).get_context_data(**kwargs)
+        print('conteudo ',context)
+        context['curso'] = Curso.objects.get(nome=self.nome)
+        print('conteudo ',context)
+
+        return context
