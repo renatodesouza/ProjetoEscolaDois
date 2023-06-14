@@ -95,14 +95,19 @@ class AlunoView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        print(context)
         aluno = self.get_object()
 
         matricula = Matricula.objects.get(aluno=aluno)
+        cursos = Curso.objects.all()
         
+        context['turma'] = matricula.turma
         context['curso'] = matricula.curso
+        context['cursos'] = cursos
         context['disciplinas'] = matricula.turma.disciplina.all()
         context['atividades'] = matricula.turma.atividades.all()
         context['atividades_limit'] = matricula.turma.atividades.order_by('?')[:2]
+        
         return context
 
 
