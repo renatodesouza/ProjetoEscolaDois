@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <!-- Importar jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Importar Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0/js/bootstrap.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <title>Curso</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="{% url 'app:index' %}">Home</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="collapsibleNavbar">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'app:create' %}">Criar</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Modificar</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Deletar</a>
+              </li>  
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Cursos</a>
+                <ul class="dropdown-menu">
+                    {% for curso in cursos %}
+                        <li><a class="dropdown-item" href="{% url 'app:curso' curso.id %}">{{ curso.nome }}</a></li>
+                    {% endfor %}
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    <div class="container p-5 my-5 border">
+        <div class="row">
+            <h3>Criação de Cursos</h3>
+            <div class="col-sm-12">
+                <form action="{% url 'app:create' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="mb-3">
+                                <label for="text" class="form-label">Curso:</label>
+                                <input type="text" class="form-control" id="nome" placeholder="Curso" name="nome">
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="mb-3">
+                                <label for="" class="form-label">Descrição:</label>
+                                <textarea type="text" class="form-control" id="descricao" style="height: 100px;" placeholder="Descrição" name="descricao"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                    Modalidade
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#" class="dropdown-item modalidade-item" data-value="Presencial">Presencial</a></li>
+                                    <li><a href="#" class="dropdown-item modalidade-item" data-value="Online">On-line</a></li>
+                                </ul>
+                                <input style="border: none" type="text" id="modalidade-input" name="modalidade" value="">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                    Periodo
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="" class="dropdown-item periodo-item" data-value="Matutino">Matutino</a></li>
+                                    <li><a href="" class="dropdown-item periodo-item" data-value="Noturno">Noturno</a></li>
+                                    <li><a href="" class="dropdown-item periodo-item" data-value="Nao Aplica">Não Aplica</a></li>
+                                </ul>
+                                <input style="border: none" type="text" id="periodo-input" name="periodo" value="">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                    Coordenador                           
+                                </button>
+                                <a class="material-icons " style="color:rgb(0, 255, 13); ">add</a>
+
+                                <ul class="dropdown-menu">
+                                    {% for coordenador in coordenadores %} 
+                                    <li>
+                                        <a href="#" class="dropdown-item coordenador-item" data-value="{{ coordenador.id }}">
+                                            {{ coordenador.usuario.first_name }}
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                <input type="hidden" id="coordenador-input" name="coordenador" value="">
+                                <span id="coordenador-nome"></span>  
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="file" class="form-control" name="imagem" value="File">
+                        </div>
+                    </div><br>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <button type="submit" class="btn btn-primary">Enviar</button>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal-fade" id="modal-form-user">
+        
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('.coordenador-item').click(function(e) {
+                e.preventDefault();
+                var coordenadorValue = $(this).data('value');
+                var coordenadorNome = $(this).text();  // Obtém o texto do elemento clicado
+    
+                console.log(coordenadorValue, coordenadorNome);
+                
+                $('#coordenador-input').val(coordenadorValue);
+                $('#coordenador-nome').text(coordenadorNome);
+            });
+            $('.periodo-item').click(function(e) {
+                e.preventDefault();
+                var periodoValue = $(this).data('value');
+                $('#periodo-input').val(periodoValue);
+            });
+            $('.modalidade-item').click(function(e) {
+                e.preventDefault();
+                var modalidadeValue = $(this).data('value');
+                $('#modalidade-input').val(modalidadeValue);
+            });
+        });
+    </script>
+</html>
