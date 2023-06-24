@@ -51,8 +51,8 @@ class AtividadeAdmin(admin.ModelAdmin):
         queryset = super().get_queryset(request)
         if request.user.is_superuser:
             return queryset
-        print(request.user)
-        return queryset.filter(professor__usuario=request.user)
+        
+        return queryset.filter(professor__usuario=request.user) or queryset.filter(turma__matricula__aluno__usuario=request.user)
 
 
 @admin.register(Coordenador)
@@ -97,7 +97,7 @@ class DisciplinaAdmin(admin.ModelAdmin):
         queryset = super().get_queryset(request)
         if request.user.is_superuser:
             return queryset
-        return queryset.filter(professor__usuario=request.user)
+        return queryset.filter(turma__matricula__aluno__usuario=request.user) or queryset.filter(professor__usuario=request.user)
 
 
 @admin.register(Matricula)
@@ -108,6 +108,13 @@ class MatriculaAdmin(admin.ModelAdmin):
         ('Informações da matricula',            {'fields':('aluno', 'curso', 'turma',
                                                            'dt_inicio', 'dt_final', 'status')}),
     ]
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        print(queryset)
+        if request.user.is_superuser:
+            return queryset
+        return queryset.filter(aluno__usuario=request.user)
 
 @admin.register(Professor)
 class ProfessorAdmin(admin.ModelAdmin):
@@ -125,7 +132,7 @@ class ProfessorAdmin(admin.ModelAdmin):
         queryset = super().get_queryset(request)
         if request.user.is_superuser:
             return queryset
-        return queryset.filter(usuario=request.user)
+        return queryset.filter(usuario=request.user) 
 
 @admin.register(Turma)
 class TurmaAdmin(admin.ModelAdmin):
@@ -134,6 +141,12 @@ class TurmaAdmin(admin.ModelAdmin):
     fieldsets = [
         ('Informações da turma',       {'fields':('curso', 'turma', 'semestre', 'disciplina')}),
     ]
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        if request.user.is_superuser:
+            return queryset
+        return queryset.filter(disciplina__professor__usuario=request.user) or queryset.filter(matricula__aluno__usuario=request.user)
 
 @admin.register(EntregaAtividade)
 class EntregaAtividadeAdmin(admin.ModelAdmin):
@@ -151,6 +164,13 @@ class EntregaAtividadeAdmin(admin.ModelAdmin):
 
     search_fields = ['aluno__usuario__first_name', 'atividade__nome', 'status', 'dt_entrega']
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        if request.user.is_superuser:
+            return queryset
+        return queryset.filter(aluno__usuario=request.user) or queryset.filter(professor__usuario=request.user)
+        
+
     def get_readonly_fields(self, request, obj):
         campos_alunos = ('nota', 'status', 'titulo', 'observacao')
         campos_professores = ('aluno', 'resposta', 'file')
@@ -167,13 +187,7 @@ class EntregaAtividadeAdmin(admin.ModelAdmin):
                 if grupos_professor and (request.user.groups.filter(name='Professores').exists() or request.user.groups.filter(name='Coordenadores').exists()):
                     return campos_professores
 
-        return self.readonly_fields
-
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        if request.user.is_superuser:
-            return queryset
-        return queryset.filter(aluno__usuario=request.user) or queryset.filter(professor__usuario=request.user)
+        return self.readonly_fields    
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'aluno':

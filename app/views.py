@@ -1,13 +1,14 @@
-from typing import Any, Dict
-from django.db import models
-from django.shortcuts import render, get_object_or_404
 
+from django.db import models
+from django.shortcuts import render, get_object_or_404, redirect
+from django.core.files.storage import default_storage
 from django.views.generic import ListView, DetailView, TemplateView
 from .models.curso import Curso
 from .models.turma import Turma
 from .models.aluno import Aluno
 from .models.matricula import Matricula
 from .models.atividade import Atividade
+from app.models.coordenador import Coordenador
 
 
 def index(request):
@@ -58,7 +59,7 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['cursos'] = Curso.objects.all()
+        context['cursos'] = Curso.objects.order_by('?')[:3]
 
         return context
     
@@ -112,3 +113,58 @@ class AlunoView(DetailView):
 
 
 
+def create(request):
+
+    cursos = Curso.objects.all()
+    
+    curso = Curso.objects.get(pk=4)
+
+    turmas = Turma.objects.filter(curso__nome=curso).filter(turma='TURMA A')
+
+    coordenadores = Coordenador.objects.all()
+
+    disciplinas_por_semestre = []
+
+    for turma in turmas:
+        semestre = turma.semestre
+        
+        disciplinas = turma.disciplina.all()
+
+        disciplinas_por_semestre.append({
+            'semestre':semestre,
+            'disciplinas':disciplinas
+        })
+
+        context = {
+            'curso':curso,
+            'cursos':cursos,
+            'disciplinas_por_semestre': disciplinas_por_semestre,
+            'coordenadores':coordenadores
+    }
+
+    if request.method == 'POST':
+        nome = request.POST.get('nome')
+        descricao = request.POST.get('descricao')
+        
+        periodo = request.POST.get('periodo')
+        modalidade = request.POST.get('modalidade')
+        imagem = request.FILES.get('imagem')
+
+
+        coordenador_id = request.POST.get('coordenador')
+        coordenador = get_object_or_404(Coordenador, pk=coordenador_id)
+
+        if imagem:
+            caminho_imagem = default_storage.save(imagem.name, imagem)
+            print(caminho_imagem)
+
+        curso = Curso.objects.create(nome=nome, descricao=descricao, coordenador=coordenador, periodo=periodo, modalidade=modalidade, imagem=caminho_imagem)
+
+        print(nome, descricao, coordenador, periodo, modalidade, imagem)
+
+        return redirect('app:create')
+    return render(request, 'app/form.html', context)
+
+
+def login(request):
+    return render(request, 'app/login.html')
