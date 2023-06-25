@@ -116,51 +116,30 @@ class AlunoView(DetailView):
 def create(request):
 
     cursos = Curso.objects.all()
-    
-    curso = Curso.objects.get(pk=4)
-
-    turmas = Turma.objects.filter(curso__nome=curso).filter(turma='TURMA A')
 
     coordenadores = Coordenador.objects.all()
 
-    disciplinas_por_semestre = []
-
-    for turma in turmas:
-        semestre = turma.semestre
-        
-        disciplinas = turma.disciplina.all()
-
-        disciplinas_por_semestre.append({
-            'semestre':semestre,
-            'disciplinas':disciplinas
-        })
-
-        context = {
-            'curso':curso,
-            'cursos':cursos,
-            'disciplinas_por_semestre': disciplinas_por_semestre,
-            'coordenadores':coordenadores
-    }
+    context = {
+        'cursos':cursos,
+        'coordenadores':coordenadores
+        }
 
     if request.method == 'POST':
         nome = request.POST.get('nome')
         descricao = request.POST.get('descricao')
-        
         periodo = request.POST.get('periodo')
         modalidade = request.POST.get('modalidade')
         imagem = request.FILES.get('imagem')
 
-
         coordenador_id = request.POST.get('coordenador')
+
         coordenador = get_object_or_404(Coordenador, pk=coordenador_id)
 
         if imagem:
             caminho_imagem = default_storage.save(imagem.name, imagem)
             print(caminho_imagem)
 
-        curso = Curso.objects.create(nome=nome, descricao=descricao, coordenador=coordenador, periodo=periodo, modalidade=modalidade, imagem=caminho_imagem)
-
-        print(nome, descricao, coordenador, periodo, modalidade, imagem)
+        Curso.objects.create(nome=nome, descricao=descricao, coordenador=coordenador, periodo=periodo, modalidade=modalidade, imagem=caminho_imagem)
 
         return redirect('app:create')
     return render(request, 'app/form.html', context)
