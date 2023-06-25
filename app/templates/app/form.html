@@ -100,7 +100,7 @@
                                 <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
                                     Coordenador                           
                                 </button>
-                                <a class="material-icons " style="color:rgb(0, 255, 13); ">add</a>
+                                
 
                                 <ul class="dropdown-menu">
                                     {% for coordenador in coordenadores %} 
@@ -129,9 +129,41 @@
             </div>
         </div>
     </div>
+    <!-- Inicio do modal-->
     <div class="modal-fade" id="modal-form-user">
         
     </div>
+    <!-- Fim do modal-->
+
+    <!--Inicio da tabela-->
+    <div class="container">
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-light table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Coordenador</th>
+                            <th>Periodo</th>
+                            <th>Modalidade</th>
+                        </tr>
+                        {% for curso in cursos %}
+                        <tr>
+                            <td>{{ curso.nome }}</td>
+                            <td>{{ curso.descricao }}</td>
+                            <td>{{ curso.coordenador.usuario.first_name }}</td>
+                            <td>{{ curso.periodo }}</td>
+                            <td>{{ curso.modalidade }}</td>
+                        </tr>
+                        {% endfor %}
+                    </thead>
+    
+                </table>
+            </div>
+        </div>
+    </div>
+    <!--Fim da tabela-->
     <script>
         $(document).ready(function() {
             $('.coordenador-item').click(function(e) {
