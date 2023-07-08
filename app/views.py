@@ -2,13 +2,15 @@
 from django.db import models
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.files.storage import default_storage
-from django.views.generic import ListView, DetailView, TemplateView
+from django.views.generic import DetailView, TemplateView
 from .models.curso import Curso
 from .models.turma import Turma
 from .models.aluno import Aluno
 from .models.matricula import Matricula
 from .models.atividade import Atividade
 from app.models.coordenador import Coordenador
+
+from .forms import CursoForm, LoginForm
 
 
 def index(request):
@@ -141,9 +143,58 @@ def create(request):
 
         Curso.objects.create(nome=nome, descricao=descricao, coordenador=coordenador, periodo=periodo, modalidade=modalidade, imagem=caminho_imagem)
 
-        return redirect('app:create')
-    return render(request, 'app/form.html', context)
+        return redirect('app:cursos')
+    return render(request, 'app/curso_create.html', context)
+
+
+def update(request, pk):
+    curso = get_object_or_404(Curso, pk=pk)
+    
+    coordenadores = Coordenador.objects.all()
+    context = {'curso':curso, 'coordenadores':coordenadores}
+    print(request.method)
+    if request.method == 'POST':
+        
+        curso.nome = request.POST.get('nome')
+        curso.descricao = request.POST.get('descricao')
+        curso.periodo = request.POST.get('periodo')
+        curso.modalidade = request.POST.get('modalidade')
+
+        coordenador_id = request.POST.get('coordenador')
+
+        coordenador = get_object_or_404(Coordenador, pk=coordenador_id)
+        curso.coordenador = coordenador
+
+        if 'imagem' in request.FILES:
+            curso.imagem = request.FILES['imagem']      
+
+        curso.save()
+
+        return redirect('app:cursos')
+   
+    return render(request, 'app/curso_edita.html', context=context)
+    
+
+def delete(request, pk):
+    curso = get_object_or_404(Curso, pk=pk)
+    curso.delete()
+    return redirect('app:cursos')
+    
+   
+def cursos(request):
+    cursos = Curso.objects.all()
+    context = {'cursos':cursos}
+    return render(request, 'app/cursos.html', context=context)
 
 
 def login(request):
-    return render(request, 'app/login.html')
+    forms = LoginForm()
+    context = {'forms':forms}
+
+    return render(request, 'app/login.html', context)
+
+def usuario(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        context = {'form':form}
+        return render(request, 'app/usuario.html', context)

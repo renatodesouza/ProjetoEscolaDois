@@ -2,6 +2,7 @@ from django import forms
 from .models.entrega_atividade import EntregaAtividade
 from .models.atividade import Atividade
 from .models.disciplina import Disciplina
+from .models.curso import Curso
 
 
 class EntregaAtividadeForm(forms.ModelForm):
@@ -29,3 +30,14 @@ class AtividadeForm(forms.ModelForm):
         professor = kwargs.pop('professor')
         super().__init__(*args, **kwargs)
         self.order_fields['disciplina'].queryset = Disciplina.objects.filter(professor=professor)
+
+
+class CursoForm(forms.ModelForm):
+    class Meta:
+        model = Curso
+        fields = ['nome', 'descricao', 'coordenador', 'periodo', 'modalidade', 'imagem']
+        
+
+class LoginForm(forms.Form):
+    usuario = forms.CharField(max_length=100)
+    password = forms.PasswordInput()
