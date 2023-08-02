@@ -41,7 +41,7 @@ class Turma(models.Model):
             UniqueConstraint(fields=['turma', 'curso', 'semestre'], name='unique_turma',)
         ]
 
-        
+    
 
     def __str__(self):
         return f'{self.turma} | {self.semestre} | {self.curso}'

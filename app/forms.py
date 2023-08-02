@@ -1,8 +1,11 @@
 from django import forms
+from django.contrib.auth.models import User
+
 from .models.entrega_atividade import EntregaAtividade
 from .models.atividade import Atividade
 from .models.disciplina import Disciplina
 from .models.curso import Curso
+
 
 
 class EntregaAtividadeForm(forms.ModelForm):
@@ -38,6 +41,23 @@ class CursoForm(forms.ModelForm):
         fields = ['nome', 'descricao', 'coordenador', 'periodo', 'modalidade', 'imagem']
         
 
-class LoginForm(forms.Form):
-    usuario = forms.CharField(max_length=100)
-    password = forms.PasswordInput()
+class LoginForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+    class Meta:
+        model = User
+        fields = ['username', 'password', 'email', 'first_name', 'last_name']
+
+        labels = {
+            'username': 'Nome do usuario',
+            'password': 'Senha',
+            'email': 'Email-Adress',
+            'first_name': 'Primeiro nome',
+            'last_name': 'Sobrenome',
+        }
+
+        widgets = {
+            'username': forms.TextInput(attrs={'placeholder': 'Nome de Usuario'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'Email'}),
+            'first_name': forms.TextInput(attrs={'placeholder': 'Nome'}),
+            'last_name': forms.TextInput(attrs={'placeholder': 'Sobrenome'}),
+        }
