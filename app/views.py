@@ -94,7 +94,7 @@ class CursoView(DetailView):
 class AlunoView(DetailView):
     template_name = 'app/aluno.html'
     model = Aluno
-    context_object_name = 'aluno'
+    context_object_name = 'user'
     
     def get_queryset(self):
         self.nome = get_object_or_404(Aluno, pk=self.kwargs['pk'])
@@ -118,7 +118,7 @@ class AlunoView(DetailView):
 class ProfessorView(DetailView):
     template_name = 'app/professor.html'
     model = Professor
-    context_object_name = 'professor'
+    context_object_name = 'user'
 
     def get_queryset(self):
         self.nome = get_object_or_404(User, pk=self.kwargs['pk'])
